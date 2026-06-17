@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FraudLens</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0f1117;
+        color: #e0e0e0;
+        min-height: 100vh;
+      }
+
+      header {
+        background: #1a1d2e;
+        padding: 20px 40px;
+        border-bottom: 1px solid #2a2d3e;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+
+      header span {
+        background: #3b82f6;
+        color: white;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .search-box {
+        background: #1a1d2e;
+        border: 1px solid #2a2d3e;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 32px;
+      }
+
+      .search-box p {
+        color: #8b8fa8;
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+
+      .search-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      input {
+        flex: 1;
+        background: #0f1117;
+        border: 1px solid #2a2d3e;
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #e0e0e0;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      input:focus {
+        border-color: #3b82f6;
+      }
+
+      input::placeholder {
+        color: #4a4d5e;
+      }
+
+      button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        white-space: nowrap;
+      }
+
+      button:hover {
+        background: #2563eb;
+      }
+      button:disabled {
+        background: #2a2d3e;
+        cursor: not-allowed;
+      }
+
+      .suggestions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .suggestion {
+        background: #0f1117;
+        border: 1px solid #2a2d3e;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 12px;
+        color: #8b8fa8;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .suggestion:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+      }
+
+      .result-box {
+        display: none;
+        margin-bottom: 32px;
+      }
+
+      .answer-card {
+        background: #1a1d2e;
+        border: 1px solid #2a2d3e;
+        border-left: 3px solid #3b82f6;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 16px;
+      }
+
+      .answer-card h3 {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #3b82f6;
+        margin-bottom: 12px;
+      }
+
+      .answer-text {
+        line-height: 1.7;
+        color: #c0c4d8;
+        font-size: 15px;
+        white-space: pre-wrap;
+      }
+
+      .transactions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .txn-card {
+        background: #1a1d2e;
+        border: 1px solid #2a2d3e;
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .txn-id {
+        font-size: 11px;
+        color: #8b8fa8;
+        margin-bottom: 8px;
+        font-family: monospace;
+      }
+
+      .txn-amount {
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 4px;
+      }
+
+      .txn-merchant {
+        font-size: 13px;
+        color: #c0c4d8;
+        margin-bottom: 8px;
+      }
+
+      .txn-details {
+        font-size: 11px;
+        color: #8b8fa8;
+        line-height: 1.6;
+      }
+
+      .score-bar {
+        margin-top: 10px;
+        background: #0f1117;
+        border-radius: 4px;
+        height: 4px;
+        overflow: hidden;
+      }
+
+      .score-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: #ef4444;
+      }
+
+      .score-label {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+      }
+
+      .score-label span {
+        font-size: 10px;
+        color: #8b8fa8;
+      }
+
+      .score-label strong {
+        font-size: 10px;
+        color: #ef4444;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        color: #8b8fa8;
+      }
+
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #2a2d3e;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .top-flagged h2 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #ffffff;
+      }
+
+      .flagged-table {
+        background: #1a1d2e;
+        border: 1px solid #2a2d3e;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        background: #0f1117;
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #8b8fa8;
+        font-weight: 500;
+      }
+
+      td {
+        padding: 12px 16px;
+        font-size: 13px;
+        border-top: 1px solid #2a2d3e;
+        color: #c0c4d8;
+      }
+
+      tr:hover td {
+        background: #0f1117;
+      }
+
+      .risk-high {
+        color: #ef4444;
+        font-weight: 600;
+      }
+      .risk-med {
+        color: #f59e0b;
+        font-weight: 600;
+      }
+      .risk-low {
+        color: #10b981;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>FraudLens</h1>
+      <span>RAG + Llama 3</span>
+    </header>
+
+    <div class="container">
+      <!-- Search -->
+      <div class="search-box">
+        <p>Ask anything about flagged transactions in plain English</p>
+        <div class="search-row">
+          <input
+            type="text"
+            id="question"
+            placeholder="e.g. Which transaction looks most suspicious?"
+            onkeydown="if (event.key === 'Enter') ask();"
+          />
+          <button onclick="ask()" id="askBtn">Ask</button>
+        </div>
+        <div class="suggestions">
+          <div
+            class="suggestion"
+            onclick="
+              fillAndAsk('Which transaction looks most suspicious and why?')
+            "
+          >
+            Most suspicious transaction
+          </div>
+          <div
+            class="suggestion"
+            onclick="
+              fillAndAsk('Are there any suspicious Shell petro transactions?')
+            "
+          >
+            Shell petro fraud
+          </div>
+          <div
+            class="suggestion"
+            onclick="fillAndAsk('Show me high amount fraud late at night')"
+          >
+            Late night high amounts
+          </div>
+          <div
+            class="suggestion"
+            onclick="
+              fillAndAsk('Which location has the most suspicious activity?')
+            "
+          >
+            Suspicious locations
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Retrieving transactions and asking Llama 3...</p>
+      </div>
+
+      <!-- Results -->
+      <div class="result-box" id="results">
+        <div class="transactions-grid" id="txnGrid"></div>
+        <div class="answer-card">
+          <h3>Llama 3 Analysis</h3>
+          <div class="answer-text" id="answerText"></div>
+        </div>
+      </div>
+
+      <!-- Top flagged table -->
+      <div class="top-flagged">
+        <h2>Top 10 Highest Risk Transactions</h2>
+        <div class="flagged-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Amount</th>
+                <th>Merchant</th>
+                <th>Hour</th>
+                <th>Location</th>
+                <th>Declines</th>
+                <th>Risk Score</th>
+              </tr>
+            </thead>
+            <tbody id="flaggedTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Load top flagged transactions on page load
+      async function loadFlagged() {
+        const res = await fetch("/flagged");
+        const data = await res.json();
+        const tbody = document.getElementById("flaggedTable");
+        tbody.innerHTML = data
+          .map(
+            (t) => `
+            <tr>
+                <td style="font-family:monospace;color:#8b8fa8">${t.transaction_id}</td>
+                <td style="color:white;font-weight:600">$${t.amount.toFixed(2)}</td>
+                <td>${t.merchant_name}</td>
+                <td>${t.hour}:00</td>
+                <td>${t.location}</td>
+                <td>${t.previous_declines}</td>
+                <td class="${t.fraud_score >= 0.85 ? "risk-high" : t.fraud_score >= 0.7 ? "risk-med" : "risk-low"}">
+                    ${(t.fraud_score * 100).toFixed(0)}%
+                </td>
+            </tr>
+        `,
+          )
+          .join("");
+      }
+
+      function fillAndAsk(q) {
+        document.getElementById("question").value = q;
+        ask();
+      }
+
+      async function ask() {
+        const question = document.getElementById("question").value.trim();
+        if (!question) return;
+
+        // Show loading
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("results").style.display = "none";
+        document.getElementById("askBtn").disabled = true;
+
+        try {
+          const res = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question }),
+          });
+          const data = await res.json();
+
+          // Show retrieved transactions
+          document.getElementById("txnGrid").innerHTML =
+            data.retrieved_transactions
+              .map((t) => {
+                // Parse fraud score from text
+                const scoreMatch = t.match(/Fraud score ([\d.]+)/);
+                const score = scoreMatch ? parseFloat(scoreMatch[1]) : 0;
+                const amountMatch = t.match(/Amount \$([\d.]+)/);
+                const amount = amountMatch ? amountMatch[1] : "?";
+                const merchantMatch = t.match(/Merchant (.+?) \(/);
+                const merchant = merchantMatch ? merchantMatch[1] : "?";
+                const idMatch = t.match(/Transaction (TXN_\d+)/);
+                const id = idMatch ? idMatch[1] : "?";
+                const hourMatch = t.match(/Hour (\d+):00/);
+                const hour = hourMatch ? hourMatch[1] : "?";
+                const locationMatch = t.match(/Location (.+?),/);
+                const location = locationMatch ? locationMatch[1] : "?";
+
+                return `
+                        <div class="txn-card">
+                            <div class="txn-id">${id}</div>
+                            <div class="txn-amount">$${amount}</div>
+                            <div class="txn-merchant">${merchant}</div>
+                            <div class="txn-details">
+                                Hour: ${hour}:00<br>
+                                Location: ${location}
+                            </div>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width:${score * 100}%"></div>
+                            </div>
+                            <div class="score-label">
+                                <span>Risk Score</span>
+                                <strong>${(score * 100).toFixed(0)}%</strong>
+                            </div>
+                        </div>
+                    `;
+              })
+              .join("");
+
+          // Show answer
+          document.getElementById("answerText").textContent = data.answer;
+          document.getElementById("results").style.display = "block";
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("askBtn").disabled = false;
+      }
+
+      loadFlagged();
+    </script>
+  </body>
+</html>

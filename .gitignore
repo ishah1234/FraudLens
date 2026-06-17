@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pkl
+*.faiss
+transactions.csv
+flagged_transactions.csv
+.DS_Store
