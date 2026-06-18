@@ -33,7 +33,7 @@
         color: #ffffff;
       }
 
-      header span {
+      .badge {
         background: #3b82f6;
         color: white;
         font-size: 11px;
@@ -42,12 +42,52 @@
         font-weight: 500;
       }
 
+      .badge-green {
+        background: #10b981;
+      }
+
       .container {
         max-width: 1000px;
         margin: 0 auto;
         padding: 40px 20px;
       }
 
+      /* Tabs */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        background: #1a1d2e;
+        padding: 6px;
+        border-radius: 10px;
+        width: fit-content;
+      }
+
+      .tab {
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #8b8fa8;
+        transition: all 0.2s;
+        border: none;
+        background: none;
+      }
+
+      .tab.active {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Search box */
       .search-box {
         background: #1a1d2e;
         border: 1px solid #2a2d3e;
@@ -82,7 +122,6 @@
       input:focus {
         border-color: #3b82f6;
       }
-
       input::placeholder {
         color: #4a4d5e;
       }
@@ -108,6 +147,13 @@
         cursor: not-allowed;
       }
 
+      .btn-green {
+        background: #10b981;
+      }
+      .btn-green:hover {
+        background: #059669;
+      }
+
       .suggestions {
         display: flex;
         gap: 8px;
@@ -130,7 +176,12 @@
         border-color: #3b82f6;
         color: #3b82f6;
       }
+      .suggestion.green:hover {
+        border-color: #10b981;
+        color: #10b981;
+      }
 
+      /* Results */
       .result-box {
         display: none;
         margin-bottom: 32px;
@@ -145,12 +196,20 @@
         margin-bottom: 16px;
       }
 
+      .answer-card.green {
+        border-left-color: #10b981;
+      }
+
       .answer-card h3 {
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 1px;
         color: #3b82f6;
         margin-bottom: 12px;
+      }
+
+      .answer-card.green h3 {
+        color: #10b981;
       }
 
       .answer-text {
@@ -180,20 +239,17 @@
         margin-bottom: 8px;
         font-family: monospace;
       }
-
       .txn-amount {
         font-size: 22px;
         font-weight: 700;
         color: #ffffff;
         margin-bottom: 4px;
       }
-
       .txn-merchant {
         font-size: 13px;
         color: #c0c4d8;
         margin-bottom: 8px;
       }
-
       .txn-details {
         font-size: 11px;
         color: #8b8fa8;
@@ -207,29 +263,73 @@
         height: 4px;
         overflow: hidden;
       }
-
       .score-fill {
         height: 100%;
         border-radius: 4px;
         background: #ef4444;
       }
-
       .score-label {
         display: flex;
         justify-content: space-between;
         margin-top: 4px;
       }
-
       .score-label span {
         font-size: 10px;
         color: #8b8fa8;
       }
-
       .score-label strong {
         font-size: 10px;
         color: #ef4444;
       }
 
+      /* Investigation steps */
+      .steps-list {
+        margin-bottom: 16px;
+      }
+
+      .step-item {
+        background: #1a1d2e;
+        border: 1px solid #2a2d3e;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .step-number {
+        background: #10b981;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .step-tool {
+        font-size: 12px;
+        color: #10b981;
+        font-family: monospace;
+        margin-bottom: 4px;
+      }
+
+      .step-result {
+        font-size: 12px;
+        color: #8b8fa8;
+        line-height: 1.5;
+      }
+
+      /* Loading */
       .loading {
         display: none;
         text-align: center;
@@ -247,12 +347,17 @@
         margin: 0 auto 16px;
       }
 
+      .spinner.green {
+        border-top-color: #10b981;
+      }
+
       @keyframes spin {
         to {
           transform: rotate(360deg);
         }
       }
 
+      /* Table */
       .top-flagged h2 {
         font-size: 16px;
         font-weight: 600;
@@ -306,100 +411,230 @@
         color: #10b981;
         font-weight: 600;
       }
+
+      .clickable {
+        cursor: pointer;
+      }
+      .clickable:hover td {
+        background: #1a2a1a !important;
+      }
     </style>
   </head>
   <body>
     <header>
       <h1>FraudLens</h1>
-      <span>RAG + Llama 3</span>
+      <span class="badge">RAG + Llama 3</span>
+      <span class="badge badge-green">Agent</span>
     </header>
 
     <div class="container">
-      <!-- Search -->
-      <div class="search-box">
-        <p>Ask anything about flagged transactions in plain English</p>
-        <div class="search-row">
-          <input
-            type="text"
-            id="question"
-            placeholder="e.g. Which transaction looks most suspicious?"
-            onkeydown="if (event.key === 'Enter') ask();"
-          />
-          <button onclick="ask()" id="askBtn">Ask</button>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('search')">Search</button>
+        <button class="tab" onclick="switchTab('investigate')">
+          Investigate
+        </button>
+      </div>
+
+      <!-- SEARCH TAB -->
+      <div id="tab-search" class="tab-content active">
+        <div class="search-box">
+          <p>Ask anything about flagged transactions in plain English</p>
+          <div class="search-row">
+            <input
+              type="text"
+              id="searchQuestion"
+              placeholder="e.g. Which transaction looks most suspicious?"
+              onkeydown="if (event.key === 'Enter') ask();"
+            />
+            <button onclick="ask()" id="askBtn">Ask</button>
+          </div>
+          <div class="suggestions">
+            <div
+              class="suggestion"
+              onclick="
+                fillAndAsk(
+                  'search',
+                  'Which transaction looks most suspicious and why?',
+                )
+              "
+            >
+              Most suspicious
+            </div>
+            <div
+              class="suggestion"
+              onclick="
+                fillAndAsk(
+                  'search',
+                  'Are there any suspicious Shell petro transactions?',
+                )
+              "
+            >
+              Shell petro fraud
+            </div>
+            <div
+              class="suggestion"
+              onclick="
+                fillAndAsk('search', 'Show me high amount fraud late at night')
+              "
+            >
+              Late night high amounts
+            </div>
+            <div
+              class="suggestion"
+              onclick="
+                fillAndAsk(
+                  'search',
+                  'Which location has the most suspicious activity?',
+                )
+              "
+            >
+              Suspicious locations
+            </div>
+          </div>
         </div>
-        <div class="suggestions">
-          <div
-            class="suggestion"
-            onclick="
-              fillAndAsk('Which transaction looks most suspicious and why?')
-            "
-          >
-            Most suspicious transaction
+
+        <div class="loading" id="searchLoading">
+          <div class="spinner"></div>
+          <p>Retrieving transactions and asking Llama 3...</p>
+        </div>
+
+        <div class="result-box" id="searchResults">
+          <div class="transactions-grid" id="txnGrid"></div>
+          <div class="answer-card">
+            <h3>Llama 3 Analysis</h3>
+            <div class="answer-text" id="answerText"></div>
           </div>
-          <div
-            class="suggestion"
-            onclick="
-              fillAndAsk('Are there any suspicious Shell petro transactions?')
-            "
-          >
-            Shell petro fraud
-          </div>
-          <div
-            class="suggestion"
-            onclick="fillAndAsk('Show me high amount fraud late at night')"
-          >
-            Late night high amounts
-          </div>
-          <div
-            class="suggestion"
-            onclick="
-              fillAndAsk('Which location has the most suspicious activity?')
-            "
-          >
-            Suspicious locations
+        </div>
+
+        <div class="top-flagged">
+          <h2>Top 10 Highest Risk Transactions</h2>
+          <div class="flagged-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Amount</th>
+                  <th>Merchant</th>
+                  <th>Hour</th>
+                  <th>Location</th>
+                  <th>Declines</th>
+                  <th>Risk Score</th>
+                </tr>
+              </thead>
+              <tbody id="flaggedTable"></tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Loading -->
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p>Retrieving transactions and asking Llama 3...</p>
-      </div>
-
-      <!-- Results -->
-      <div class="result-box" id="results">
-        <div class="transactions-grid" id="txnGrid"></div>
-        <div class="answer-card">
-          <h3>Llama 3 Analysis</h3>
-          <div class="answer-text" id="answerText"></div>
+      <!-- INVESTIGATE TAB -->
+      <div id="tab-investigate" class="tab-content">
+        <div class="search-box">
+          <p>
+            Give the agent an investigation goal — it will autonomously plan
+            steps, execute tools, and write a report
+          </p>
+          <div class="search-row">
+            <input
+              type="text"
+              id="investigateQuestion"
+              placeholder="e.g. Investigate TXN_0238 and find related suspicious activity"
+              onkeydown="if (event.key === 'Enter') investigate();"
+            />
+            <button
+              class="btn-green"
+              onclick="investigate()"
+              id="investigateBtn"
+            >
+              Investigate
+            </button>
+          </div>
+          <div class="suggestions">
+            <div
+              class="suggestion green"
+              onclick="
+                fillAndAsk(
+                  'investigate',
+                  'Investigate TXN_0238 and find related suspicious activity',
+                )
+              "
+            >
+              Investigate TXN_0238
+            </div>
+            <div
+              class="suggestion green"
+              onclick="
+                fillAndAsk(
+                  'investigate',
+                  'Find the highest risk transactions and explain why they are dangerous',
+                )
+              "
+            >
+              Highest risk transactions
+            </div>
+            <div
+              class="suggestion green"
+              onclick="
+                fillAndAsk(
+                  'investigate',
+                  'Find suspicious Shell petro transactions and identify patterns',
+                )
+              "
+            >
+              Shell fraud patterns
+            </div>
+            <div
+              class="suggestion green"
+              onclick="
+                fillAndAsk(
+                  'investigate',
+                  'Investigate fraud activity in New York and identify the riskiest cases',
+                )
+              "
+            >
+              New York fraud
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Top flagged table -->
-      <div class="top-flagged">
-        <h2>Top 10 Highest Risk Transactions</h2>
-        <div class="flagged-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Transaction ID</th>
-                <th>Amount</th>
-                <th>Merchant</th>
-                <th>Hour</th>
-                <th>Location</th>
-                <th>Declines</th>
-                <th>Risk Score</th>
-              </tr>
-            </thead>
-            <tbody id="flaggedTable"></tbody>
-          </table>
+        <div class="loading" id="investigateLoading">
+          <div class="spinner green"></div>
+          <p>Agent is investigating... planning steps and executing tools...</p>
+        </div>
+
+        <div class="result-box" id="investigateResults">
+          <div class="steps-list" id="stepsList"></div>
+          <div class="answer-card green">
+            <h3>Investigation Report</h3>
+            <div class="answer-text" id="reportText"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
-      // Load top flagged transactions on page load
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((t) => t.classList.remove("active"));
+        event.target.classList.add("active");
+        document.getElementById("tab-" + tab).classList.add("active");
+      }
+
+      function fillAndAsk(type, q) {
+        if (type === "search") {
+          document.getElementById("searchQuestion").value = q;
+          ask();
+        } else {
+          document.getElementById("investigateQuestion").value = q;
+          investigate();
+        }
+      }
+
       async function loadFlagged() {
         const res = await fetch("/flagged");
         const data = await res.json();
@@ -407,7 +642,7 @@
         tbody.innerHTML = data
           .map(
             (t) => `
-            <tr>
+            <tr class="clickable" onclick="fillAndAsk('investigate', 'Investigate ${t.transaction_id} and find related suspicious activity')">
                 <td style="font-family:monospace;color:#8b8fa8">${t.transaction_id}</td>
                 <td style="color:white;font-weight:600">$${t.amount.toFixed(2)}</td>
                 <td>${t.merchant_name}</td>
@@ -423,18 +658,12 @@
           .join("");
       }
 
-      function fillAndAsk(q) {
-        document.getElementById("question").value = q;
-        ask();
-      }
-
       async function ask() {
-        const question = document.getElementById("question").value.trim();
+        const question = document.getElementById("searchQuestion").value.trim();
         if (!question) return;
 
-        // Show loading
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("results").style.display = "none";
+        document.getElementById("searchLoading").style.display = "block";
+        document.getElementById("searchResults").style.display = "none";
         document.getElementById("askBtn").disabled = true;
 
         try {
@@ -445,11 +674,9 @@
           });
           const data = await res.json();
 
-          // Show retrieved transactions
           document.getElementById("txnGrid").innerHTML =
             data.retrieved_transactions
               .map((t) => {
-                // Parse fraud score from text
                 const scoreMatch = t.match(/Fraud score ([\d.]+)/);
                 const score = scoreMatch ? parseFloat(scoreMatch[1]) : 0;
                 const amountMatch = t.match(/Amount \$([\d.]+)/);
@@ -468,10 +695,7 @@
                             <div class="txn-id">${id}</div>
                             <div class="txn-amount">$${amount}</div>
                             <div class="txn-merchant">${merchant}</div>
-                            <div class="txn-details">
-                                Hour: ${hour}:00<br>
-                                Location: ${location}
-                            </div>
+                            <div class="txn-details">Hour: ${hour}:00<br>Location: ${location}</div>
                             <div class="score-bar">
                                 <div class="score-fill" style="width:${score * 100}%"></div>
                             </div>
@@ -484,15 +708,65 @@
               })
               .join("");
 
-          // Show answer
           document.getElementById("answerText").textContent = data.answer;
-          document.getElementById("results").style.display = "block";
+          document.getElementById("searchResults").style.display = "block";
         } catch (e) {
           alert("Error: " + e.message);
         }
 
-        document.getElementById("loading").style.display = "none";
+        document.getElementById("searchLoading").style.display = "none";
         document.getElementById("askBtn").disabled = false;
+      }
+
+      async function investigate() {
+        const question = document
+          .getElementById("investigateQuestion")
+          .value.trim();
+        if (!question) return;
+
+        document.getElementById("investigateLoading").style.display = "block";
+        document.getElementById("investigateResults").style.display = "none";
+        document.getElementById("investigateBtn").disabled = true;
+
+        try {
+          const res = await fetch("/investigate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question }),
+          });
+          const data = await res.json();
+
+          if (data.error) {
+            alert("Error: " + data.error);
+            return;
+          }
+
+          // Show investigation steps
+          document.getElementById("stepsList").innerHTML = data.findings
+            .map((finding, i) => {
+              const toolMatch = finding.match(/\[(.+?)\]:/);
+              const tool = toolMatch ? toolMatch[1] : "tool";
+              const result = finding.replace(/\[.+?\]: /, "");
+              return `
+                        <div class="step-item">
+                            <div class="step-number">${i + 1}</div>
+                            <div class="step-content">
+                                <div class="step-tool">${tool}()</div>
+                                <div class="step-result">${result.substring(0, 150)}${result.length > 150 ? "..." : ""}</div>
+                            </div>
+                        </div>
+                    `;
+            })
+            .join("");
+
+          document.getElementById("reportText").textContent = data.report;
+          document.getElementById("investigateResults").style.display = "block";
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+
+        document.getElementById("investigateLoading").style.display = "none";
+        document.getElementById("investigateBtn").disabled = false;
       }
 
       loadFlagged();

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from agent import agent 
 
 # Load everything
 print("Loading models and data...")
@@ -74,6 +75,23 @@ def ask(query: Query):
         "retrieved_transactions": context,
         "answer": answer
     }
+@app.post("/investigate")
+def investigate(query: Query):
+    try:
+        result = agent.invoke({
+            "goal": query.question,
+            "steps": [],
+            "findings": [],
+            "final_report": "",
+            "done": False
+        })
+        return {
+            "goal": query.question,
+            "findings": result["findings"],
+            "report": result["final_report"]
+        }
+    except Exception as e:
+        return {"error": str(e), "goal": query.question, "findings": [], "report": ""}
 
 @app.get("/flagged")
 def get_flagged():
